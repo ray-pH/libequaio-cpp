@@ -14,7 +14,7 @@ using std::endl;
 using std::map;
 
 template <typename T> 
-bool is_in(T item, vector<T> vec){
+bool vector_contain(T item, vector<T> vec){
     return find(vec.begin(), vec.end(), item) != vec.end();
 }
 template <typename T> 
@@ -69,15 +69,17 @@ string Expression::to_string(){
 // check structural equality
 // check if this expression can be matched by the pattern
 // only based on operators
-bool Expression::can_pattern_match(Expression pattern){
-    if (type != pattern.type) return false;
+bool Expression::can_pattern_match(Expression pattern, Context ctx){
+    bool is_constant = vector_contain(pattern.symbol, ctx.variables);
+    if (pattern.type == EXPRESSION_VALUE && !is_constant) return true;
 
-    bool is_operator = type == EXPRESSION_OPERATOR_INFIX || type == EXPRESSION_OPERATOR_PREFIX;
-    if (is_operator && symbol != pattern.symbol) return false;
+    // is operator
+    if (type != pattern.type) return false;
+    if (symbol != pattern.symbol) return false;
 
     if (child.size() != pattern.child.size()) return false;
     for (size_t i = 0; i < child.size(); i++){
-        if (!child[i].can_pattern_match(pattern.child[i])) return false;
+        if (!child[i].can_pattern_match(pattern.child[i], ctx)) return false;
     }
     return true;
 }
@@ -135,7 +137,7 @@ Expression Expression::apply_variable_map(map<string, Expression> variable_map){
 }
 
 // rule of equality
-vector<Expression> Expression::apply_rule_equal(Expression rule){
+vector<Expression> Expression::apply_rule_equal(Expression rule, Context ctx){
     if (rule.symbol != "=") return {};
 
     // turn lhs to rhs
@@ -145,7 +147,7 @@ vector<Expression> Expression::apply_rule_equal(Expression rule){
     // auto variables = extract_variables(lhs);
     vector<Expression> result = {};
 
-    if (this->can_pattern_match(lhs)){
+    if (this->can_pattern_match(lhs, ctx)){
         auto variable_map = this->try_match_pattern(lhs);
         if (variable_map.has_value()){
             auto applied_rhs = rhs.apply_variable_map(variable_map.value());
@@ -155,7 +157,7 @@ vector<Expression> Expression::apply_rule_equal(Expression rule){
 
     // do it for each child
     for (size_t i = 0; i < this->child.size(); i++){
-        auto child_result = this->child[i].apply_rule_equal(rule);
+        auto child_result = this->child[i].apply_rule_equal(rule, ctx);
         for (auto &child_expr : child_result){
             auto expr = this->copy();
             expr.child[i] = child_expr;
@@ -277,7 +279,7 @@ optional<Expression> parse_expression_from_tokens(vector<Token> tokens, Context 
     if (rightmost_parsed+1 >= end) return leftexpr;
 
     // check if next token is a binary operator
-    if (is_in(tokens[rightmost_parsed+1].value, ctx.binary_operators)){
+    if (vector_contain(tokens[rightmost_parsed+1].value, ctx.binary_operators)){
         if (rightmost_parsed+2 >= end) return std::nullopt;
 
         auto rightexpr = parse_expression_from_tokens(tokens, ctx, rightmost_parsed+2, end);

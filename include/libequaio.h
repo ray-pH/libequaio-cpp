@@ -14,7 +14,7 @@ using std::endl;
 using std::map;
 
 template <typename T> 
-bool is_in(T item, vector<T> vec);
+bool vector_contain(T item, vector<T> vec);
 template <typename T> 
 bool map_contain(string key, map<string, T> map);
 
@@ -53,7 +53,7 @@ struct Expression {
     // check structural equality
     // check if this expression can be matched by the pattern
     // only based on operators
-    bool can_pattern_match(Expression pattern);
+    bool can_pattern_match(Expression pattern, Context ctx);
 
     static vector<string> extract_variables(Expression expr);
 
@@ -63,7 +63,7 @@ struct Expression {
     Expression apply_variable_map(map<string, Expression> variable_map);
 
     // rule of equality
-    vector<Expression> apply_rule_equal(Expression rule);
+    vector<Expression> apply_rule_equal(Expression rule, Context ctx);
     friend bool operator==(const Expression& lhs, const Expression& rhs);
     friend bool operator!=(const Expression& lhs, const Expression& rhs);
     
