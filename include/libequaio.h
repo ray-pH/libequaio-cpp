@@ -16,8 +16,11 @@ typedef enum {
     TOKEN_OPENPAREN,
     TOKEN_CLOSEPAREN,
 } TokenType;
+
+// TokenType type;
+// string value;
 struct Token {
-    TokenType   type;
+    TokenType type;
     string value;
 };
 
