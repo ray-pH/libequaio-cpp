@@ -67,12 +67,5 @@ struct Expression {
     static Expression create_equality(Expression lhs, Expression rhs);
 };
 
-
 std::ostream& operator<<(std::ostream& os, const Token& token);
 std::ostream& operator<<(std::ostream& os, const Expression& exp);
-vector<Token> tokenize(string str);
-int find_correspoding_closeparen(vector<Token> tokens, int start, int end);
-optional<Expression> parse_expression_from_tokens(vector<Token> tokens, Context ctx, int start, int end);
-optional<Expression> parse_expression(string str, Context ctx);
-optional<Expression> parse_statement(string str, string statement_symbol, Context ctx);
-

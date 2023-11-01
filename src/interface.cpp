@@ -5,6 +5,7 @@
 #include "libequaio.h"
 #include "interface.h"
 #include "utils.h"
+#include "parser.h"
 
 using std::cout;
 using std::endl;

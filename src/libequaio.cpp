@@ -26,8 +26,6 @@ std::ostream& operator<<(std::ostream& os, const Token& token){
     return os;
 }
 
-
-
 Expression Expression::copy() const{
     Expression expr = {
         type, 
@@ -223,126 +221,11 @@ vector<Token> tokenize(string str){
     return tokens;
 }
 
-int find_correspoding_closeparen(vector<Token> tokens, int start, int end){
-    int depth = 0;
-    for (int i = start; i < end; i++){
-        if (tokens[i].type == TOKEN_OPENPAREN) depth++;
-        else if (tokens[i].type == TOKEN_CLOSEPAREN) depth--;
-        if (depth == 0) return i;
-    }
-    return -1;
-}
-
-optional<Expression> parse_expression_from_tokens(vector<Token> tokens, Context ctx, int start = 0, int end = -1){
-    if (end == -1) end = tokens.size();
-    int rightmost_parsed = start;
-    optional<Expression> leftexpr;
-
-    switch (tokens[start].type){
-        case TOKEN_OPENPAREN:{
-            int closeparen_id = find_correspoding_closeparen(tokens, start, end);
-            if (closeparen_id == -1) return std::nullopt;
-
-            rightmost_parsed = closeparen_id;
-            auto inner_expr = parse_expression_from_tokens(tokens, ctx, start+1, closeparen_id);
-            leftexpr = inner_expr;
-            break;
-        }
-        case TOKEN_SYMBOL:{
-            Expression expr = {
-                EXPRESSION_VALUE, 
-                tokens[start].value, 
-                true, 
-                {}
-            };
-
-            rightmost_parsed = start;
-            leftexpr = std::make_optional(expr);
-            break;
-        }
-        case TOKEN_CLOSEPAREN:
-            assert(false && "Unreachable");
-        default:
-            // assert unreachable
-            assert(false && "Invalid token type");
-    }
-
-    if (!leftexpr.has_value()) return std::nullopt;
-    if (rightmost_parsed+1 >= end) return leftexpr;
-
-    // check if next token is a binary operator
-    if (vector_contain(tokens[rightmost_parsed+1].value, ctx.binary_operators)){
-        if (rightmost_parsed+2 >= end) return std::nullopt;
-
-        auto rightexpr = parse_expression_from_tokens(tokens, ctx, rightmost_parsed+2, end);
-        if (!rightexpr.has_value()) return std::nullopt;
-
-        Expression expr = {
-            EXPRESSION_OPERATOR_INFIX, 
-            tokens[rightmost_parsed+1].value, 
-            true, 
-            {leftexpr.value(), rightexpr.value()}
-        };
-        return std::make_optional(expr);
-    } else {
-        // assume this is a prefix operator
-        auto rightexpr = parse_expression_from_tokens(tokens, ctx, rightmost_parsed+1, end);
-        if (!rightexpr.has_value()) return std::nullopt;
-
-        Expression expr = {
-            EXPRESSION_OPERATOR_PREFIX, 
-            tokens[rightmost_parsed+1].value, 
-            true, 
-            {rightexpr.value()}
-        };
-        return std::make_optional(expr);
-    }
-
-}
-
-optional<Expression> parse_expression(string str, Context ctx){
-    auto tokens = tokenize(str);
-    return parse_expression_from_tokens(tokens, ctx);
-}
-
-// ex: statement symbol is "=" for equality
-optional<Expression> parse_statement(string str, string statement_symbol, Context ctx){
-    // find location of statement symbol
-    int statement_symbol_id = -1;
-    for (size_t i = 0; i < str.length(); i++){
-        if (str[i] == statement_symbol[0]){
-            bool found = true;
-            for (size_t j = 0; j < statement_symbol.length(); j++){
-                if (str[i+j] != statement_symbol[j]){
-                    found = false;
-                    break;
-                }
-            }
-            if (found){
-                statement_symbol_id = i;
-                break;
-            }
-        }
-    }
-    if (statement_symbol_id == -1) return std::nullopt;
-
-    auto leftexpr = parse_expression(str.substr(0, statement_symbol_id), ctx);
-    if (!leftexpr.has_value()) return std::nullopt;
-
-    auto rightexpr = parse_expression(str.substr(statement_symbol_id+statement_symbol.length(), str.length()), ctx);
-    if (!rightexpr.has_value()) return std::nullopt;
-
-    return Expression{
-        EXPRESSION_OPERATOR_INFIX, 
-        statement_symbol, 
-        false, 
-        {leftexpr.value(), rightexpr.value()}
-    };
-}
-
-
 /// ================= helper functions ================================
+
 Expression Expression::create_equality(Expression lhs, Expression rhs){
+    lhs.bracketed = false;
+    rhs.bracketed = false;
     return {
         EXPRESSION_OPERATOR_INFIX,
         "=",
