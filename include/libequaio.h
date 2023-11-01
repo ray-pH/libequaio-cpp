@@ -1,16 +1,12 @@
 #include <optional>
 #include <string>
 #include <vector>
-#include <iostream>
-#include <assert.h>
 #include <algorithm>
 #include <map>
 
 using std::optional; 
 using std::string; 
 using std::vector; 
-using std::cout; 
-using std::endl; 
 using std::map;
 
 template <typename T> 
