@@ -16,3 +16,6 @@ template <typename T>
 bool map_contain(string key, map<string, T> map){
     return map.find(key) != map.end();
 }
+
+bool is_str_integer(string str);
+bool is_str_numeric(string str);
