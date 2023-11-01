@@ -33,7 +33,7 @@ typedef enum{
 
 struct Context{
     vector<string> variables;
-    vector<string> binary_operators; //also include ','
+    vector<string> infix_operators;  //also include ','
     vector<string> prefix_operators; //also include functions
 };
 
