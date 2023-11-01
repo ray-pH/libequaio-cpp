@@ -339,3 +339,14 @@ optional<Expression> parse_statement(string str, string statement_symbol, Contex
         {leftexpr.value(), rightexpr.value()}
     };
 }
+
+
+/// ================= helper functions ================================
+Expression Expression::create_equality(Expression lhs, Expression rhs){
+    return {
+        EXPRESSION_OPERATOR_INFIX,
+        "=",
+        false,
+        { lhs, rhs }
+    };
+}
