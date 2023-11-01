@@ -28,7 +28,7 @@ std::ostream& operator<<(std::ostream& os, const Token& token){
 
 
 
-Expression Expression::copy(){
+Expression Expression::copy() const{
     Expression expr = {
         type, 
         symbol, 
@@ -40,7 +40,7 @@ Expression Expression::copy(){
     return expr;
 }
 
-string Expression::to_string(){
+string Expression::to_string() const {
     string str = "";
     bool no_child = child.size() == 0;
     if (bracketed && !no_child) str += "(";
@@ -61,7 +61,7 @@ string Expression::to_string(){
 // check structural equality
 // check if this expression can be matched by the pattern
 // only based on operators
-bool Expression::can_pattern_match(Expression pattern, Context ctx){
+bool Expression::can_pattern_match(Expression pattern, Context ctx) const{
     bool is_constant = vector_contain(pattern.symbol, ctx.variables);
     if (pattern.type == EXPRESSION_VALUE && !is_constant) return true;
 
@@ -88,7 +88,7 @@ vector<string> Expression::extract_variables(Expression expr){
 
 // return map that maps variables from pattern to expressions in this expression
 // NOTE : this->can_pattern_match(pattern) must be true
-optional<map<string, Expression>> Expression::try_match_pattern(Expression pattern){
+optional<map<string, Expression>> Expression::try_match_pattern(Expression pattern) const{
     if (pattern.type == EXPRESSION_VALUE){
         return map<string, Expression>{{pattern.symbol, *this}};
     }
@@ -109,7 +109,7 @@ optional<map<string, Expression>> Expression::try_match_pattern(Expression patte
     return variable_map;
 }
 
-Expression Expression::apply_variable_map(map<string, Expression> variable_map){
+Expression Expression::apply_variable_map(map<string, Expression> variable_map) const{
     if (type == EXPRESSION_VALUE){
         if (map_contain(symbol, variable_map)){
             return variable_map[symbol];
@@ -129,7 +129,7 @@ Expression Expression::apply_variable_map(map<string, Expression> variable_map){
 }
 
 // rule of equality
-vector<Expression> Expression::apply_rule_equal(Expression rule, Context ctx){
+vector<Expression> Expression::apply_rule_equal(Expression rule, Context ctx) const{
     if (rule.symbol != "=") return {};
 
     // turn lhs to rhs

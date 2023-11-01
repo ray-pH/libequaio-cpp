@@ -40,23 +40,23 @@ struct Expression {
     bool    bracketed;
     vector<Expression> child;
 
-    Expression copy();
-    string to_string();
+    Expression copy() const;
+    string to_string() const;
 
     // check structural equality
     // check if this expression can be matched by the pattern
     // only based on operators
-    bool can_pattern_match(Expression pattern, Context ctx);
+    bool can_pattern_match(Expression pattern, Context ctx) const;
 
     static vector<string> extract_variables(Expression expr);
 
     // return map that maps variables from pattern to expressions in this expression
     // NOTE : this->can_pattern_match(pattern) must be true
-    optional<map<string, Expression>> try_match_pattern(Expression pattern);
-    Expression apply_variable_map(map<string, Expression> variable_map);
+    optional<map<string, Expression>> try_match_pattern(Expression pattern) const;
+    Expression apply_variable_map(map<string, Expression> variable_map) const;
 
     // rule of equality
-    vector<Expression> apply_rule_equal(Expression rule, Context ctx);
+    vector<Expression> apply_rule_equal(Expression rule, Context ctx) const;
     friend bool operator==(const Expression& lhs, const Expression& rhs);
     friend bool operator!=(const Expression& lhs, const Expression& rhs);
     
