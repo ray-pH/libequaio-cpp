@@ -1,3 +1,5 @@
+#pragma once
+
 #include <optional>
 #include <string>
 #include <vector>
@@ -8,11 +10,6 @@ using std::optional;
 using std::string; 
 using std::vector; 
 using std::map;
-
-template <typename T> 
-bool vector_contain(T item, vector<T> vec);
-template <typename T> 
-bool map_contain(string key, map<string, T> map);
 
 typedef enum {
     TOKEN_SYMBOL,

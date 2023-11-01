@@ -6,21 +6,13 @@
 #include <algorithm>
 #include <map>
 #include "libequaio.h"
+#include "utils.h"
 
 using std::optional; 
 using std::string; 
 using std::vector; 
 using std::endl; 
 using std::map;
-
-template <typename T> 
-bool vector_contain(T item, vector<T> vec){
-    return find(vec.begin(), vec.end(), item) != vec.end();
-}
-template <typename T> 
-bool map_contain(string key, map<string, T> map){
-    return map.find(key) != map.end();
-}
 
 std::ostream& operator<<(std::ostream& os, const Token& token){
     switch (token.type){
