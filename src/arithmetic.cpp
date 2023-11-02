@@ -35,7 +35,7 @@ Expression _create_calculation(T left, T right, Operator op){
     Expression rhs = Expression::create_symbol(std::to_string(result));
     Expression lhs = {
         EXPRESSION_OPERATOR_INFIX,
-        string(1,op),
+        operator_symbol.at(op),
         false,
         {exprleft, exprright}
     };
