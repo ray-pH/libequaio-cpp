@@ -105,7 +105,7 @@ void replace_expression_symbol(Expression &expr, string from_symbol, Expression 
     }
 }
 
-bool Task::apply_function_to_both_side(string fstr, string varname, string custom_name){
+bool Task::apply_function_to_both_side_expr(Expression fexpr, string varname, string custom_name){
     if (!this->current.has_value()){
         this->error_messages.push_back("current statement is not set");
         return false;
@@ -114,19 +114,13 @@ bool Task::apply_function_to_both_side(string fstr, string varname, string custo
         this->error_messages.push_back("current statement is not an equality");
         return false;
     }
-    auto fexpr = parse_expression(fstr, this->context);
-    if (!fexpr.has_value()) {
-        this->error_messages.push_back("failed to parse function: " + fstr);
-        return false;
-    }
-
-    if (custom_name == "") custom_name = "apply " + fstr + " to both side";
+    if (custom_name == "") custom_name = "apply " + fexpr.to_string() + " to both side";
 
     Expression lhs = this->current.value().child[0];
     Expression rhs = this->current.value().child[1];
 
-    Expression new_lhs = fexpr.value().copy();
-    Expression new_rhs = fexpr.value().copy();
+    Expression new_lhs = fexpr.copy();
+    Expression new_rhs = fexpr.copy();
     replace_expression_symbol(new_lhs, varname, lhs);
     replace_expression_symbol(new_rhs, varname, rhs);
 
@@ -134,6 +128,17 @@ bool Task::apply_function_to_both_side(string fstr, string varname, string custo
     this->current = newexpr;
     this->history.push_back({newexpr, custom_name});
     return true;
+}
+
+bool Task::apply_function_to_both_side(string fstr, string varname, string custom_name){
+    auto fexpr = parse_expression(fstr, this->context);
+    if (!fexpr.has_value()) {
+        this->error_messages.push_back("failed to parse function: " + fstr);
+        return false;
+    }
+
+    if (custom_name == "") custom_name = "apply " + fstr + " to both side";
+    return this->apply_function_to_both_side_expr(fexpr.value(), varname, custom_name);
 }
 
 
