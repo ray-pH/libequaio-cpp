@@ -31,10 +31,15 @@ typedef enum{
     EXPRESSION_VALUE,
 } ExpType;
 
+// vector<string> variables;
+// vector<string> infix\_operators; 
+// vector<string> prefix\_operators; 
+// bool handle\_numerics;             
 struct Context{
     vector<string> variables;
     vector<string> infix_operators;  //also include ','
     vector<string> prefix_operators; //also include functions
+    bool handle_numerics;            // true if numbers are allowed
 };
 
 // ExpType type;

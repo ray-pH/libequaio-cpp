@@ -61,6 +61,8 @@ string Expression::to_string() const {
 // only based on operators
 bool Expression::can_pattern_match(Expression pattern, Context ctx) const{
     bool is_constant = vector_contain(pattern.symbol, ctx.variables);
+    if (ctx.handle_numerics) is_constant |= is_str_numeric(pattern.symbol);
+
     if (pattern.type == EXPRESSION_VALUE && !is_constant) return true;
 
     // is operator
