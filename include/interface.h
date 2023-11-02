@@ -37,6 +37,7 @@ struct Task {
 
     // arithmetics
     bool apply_arithmetic_to_both_side(Arithmetic::Operator op, string value, string custom_name = "");
+    bool apply_arithmetic_calculation(string left, string right, Arithmetic::Operator op, string custom_name = "");
 };
 
 struct Interface {

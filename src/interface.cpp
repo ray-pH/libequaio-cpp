@@ -161,7 +161,7 @@ bool Task::apply_rule_expr(Expression expr, string name){
     // FIXME: for now only take the first result
     Expression newcurrent = results[0];
     this->current = newcurrent;
-    this->history.push_back({newcurrent, "apply rule: " + name});
+    this->history.push_back({newcurrent, name});
     return true;
 }
 
@@ -190,4 +190,15 @@ bool Task::apply_arithmetic_to_both_side(Arithmetic::Operator op, string value, 
     };
     if (custom_name == "") custom_name = Arithmetic::operator_name.at(op) + " both side by " + value;
     return this->apply_function_to_both_side_expr(expr, varname, custom_name);
+}
+
+bool Task::apply_arithmetic_calculation(string left, string right, Arithmetic::Operator op, string custom_name){
+    auto expr = Arithmetic::create_calculation(left, right, op);
+    if (!expr.has_value()){
+        this->error_messages.push_back("failed to create calculation: " + left + " " + 
+                                       Arithmetic::operator_name.at(op) + " " + right);
+        return false;
+    }
+    if (custom_name == "") custom_name = "calculate " + expr->to_string();
+    return this->apply_rule_expr(expr.value(), custom_name);
 }
