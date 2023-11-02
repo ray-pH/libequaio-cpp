@@ -3,6 +3,7 @@
 #include <vector>
 #include <tuple>
 #include "libequaio.h"
+#include "arithmetic.h"
 
 using std::optional;
 using std::vector;
@@ -30,6 +31,7 @@ struct Task {
     // userland
 
     void apply_function_to_both_side(string fstr, string varname, string custom_name = "");
+    void apply_rule_expr(Expression expr, string custom_name = "");
     void apply_rule(string rulename, string custom_name = "");
 };
 
