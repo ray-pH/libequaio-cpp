@@ -20,7 +20,6 @@ const map<Operator, string> operation_name = {
     {OPERATOR_DIV, "divide"},
 };
 
-Expression create_calculation(int left, int right, Operator op);
-Expression create_calculation(float left, float right, Operator op);
+optional<Expression> create_calculation(string left, string right, Operator op);
 
 }

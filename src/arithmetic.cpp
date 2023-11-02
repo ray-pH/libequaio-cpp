@@ -1,4 +1,5 @@
 #include "arithmetic.h"
+#include "utils.h"
 
 using namespace Arithmetic;
 
@@ -41,9 +42,12 @@ Expression _create_calculation(T left, T right, Operator op){
     return Expression::create_equality(lhs, rhs);
 }
 
-Expression Arithmetic::create_calculation(int left, int right, Operator op){
-    return _create_calculation(left, right, op);
-}
-Expression Arithmetic::create_calculation(float left, float right, Operator op){
-    return _create_calculation(left, right, op);
+optional<Expression> Arithmetic::create_calculation(string left, string right, Operator op){
+    if (is_str_integer(left) && is_str_integer(right)){
+        return _create_calculation(stoi(left), stoi(right), op);
+    }
+    if (is_str_numeric(left) && is_str_numeric(right)){
+        return _create_calculation(stof(left), stof(right), op);
+    }
+    return std::nullopt;
 }
