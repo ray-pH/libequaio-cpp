@@ -105,19 +105,19 @@ void replace_expression_symbol(Expression &expr, string from_symbol, Expression 
     }
 }
 
-void Task::apply_function_to_both_side(string fstr, string varname, string custom_name){
+bool Task::apply_function_to_both_side(string fstr, string varname, string custom_name){
     if (!this->current.has_value()){
         this->error_messages.push_back("current statement is not set");
-        return;
+        return false;
     }
     if (this->current->symbol != "="){
         this->error_messages.push_back("current statement is not an equality");
-        return;
+        return false;
     }
     auto fexpr = parse_expression(fstr, this->context);
     if (!fexpr.has_value()) {
         this->error_messages.push_back("failed to parse function: " + fstr);
-        return;
+        return false;
     }
 
     if (custom_name == "") custom_name = "apply " + fstr + " to both side";
@@ -133,38 +133,40 @@ void Task::apply_function_to_both_side(string fstr, string varname, string custo
     Expression newexpr = Expression::create_equality(new_lhs, new_rhs);
     this->current = newexpr;
     this->history.push_back({newexpr, custom_name});
+    return true;
 }
 
 
-void Task::apply_rule_expr(Expression expr, string name){
+bool Task::apply_rule_expr(Expression expr, string name){
     if (!this->current.has_value()){
         this->error_messages.push_back("current statement is not set");
-        return;
+        return false;
     }
     if (this->current->symbol != "="){
         this->error_messages.push_back("current statement is not an equality");
-        return;
+        return false;
     }
 
     auto results = this->current.value().apply_rule_equal(expr, this->context);
     if (results.size() == 0){
         this->error_messages.push_back("failed to apply rule: " + name);
-        return;
+        return false;
     }
 
     // FIXME: for now only take the first result
     Expression newcurrent = results[0];
     this->current = newcurrent;
     this->history.push_back({newcurrent, "apply rule: " + name});
+    return true;
 }
 
-void Task::apply_rule(string rulename, string custom_name){
+bool Task::apply_rule(string rulename, string custom_name){
     if (!map_contain(rulename, this->rules)){
         this->error_messages.push_back("rule " + rulename + " is not defined");
-        return;
+        return false;
     }
     if (custom_name == "") custom_name = "apply rule: " + rulename;
 
     Expression ruleexpr = this->rules[rulename];
-    this->apply_rule_expr(ruleexpr, custom_name);
+    return this->apply_rule_expr(ruleexpr, custom_name);
 }
