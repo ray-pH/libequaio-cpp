@@ -73,13 +73,16 @@ bool Task::set_target_eq(string exprstr){
     this->target = target.value();
     return true;
 }
+void Task::add_rule_expr(string name, Expression expr){
+    this->rules.insert({name, expr});
+}
 void Task::add_rule_eq(string name, string exprstr) {
     auto expr = parse_statement(exprstr, "=", this->context);
     if (!expr.has_value()) {
         this->error_messages.push_back("failed to parse rule: " + exprstr);
         return;
     }
-    this->rules.insert({name, expr.value()});
+    this->add_rule_expr(name, expr.value());
 }
 
 void Task::init_current_with_target_lhs(){
