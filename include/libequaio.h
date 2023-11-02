@@ -73,6 +73,7 @@ struct Expression {
     friend bool operator!=(const Expression& lhs, const Expression& rhs);
     
     static Expression create_equality(Expression lhs, Expression rhs);
+    static Expression create_symbol(string symbol);
 };
 
 std::ostream& operator<<(std::ostream& os, const Token& token);

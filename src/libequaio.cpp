@@ -235,3 +235,12 @@ Expression Expression::create_equality(Expression lhs, Expression rhs){
         { lhs, rhs }
     };
 }
+
+Expression Expression::create_symbol(string symbol){
+    return {
+        EXPRESSION_VALUE,
+        symbol,
+        false,
+        {}
+    };
+}
