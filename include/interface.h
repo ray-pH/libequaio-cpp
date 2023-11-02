@@ -34,6 +34,9 @@ struct Task {
     bool apply_rule_expr(Expression expr, string custom_name = "");
     bool apply_function_to_both_side(string fstr, string varname, string custom_name = "");
     bool apply_rule(string rulename, string custom_name = "");
+
+    // arithmetics
+    bool apply_arithmetic_to_both_side(Arithmetic::Operator op, string value, string custom_name = "");
 };
 
 struct Interface {

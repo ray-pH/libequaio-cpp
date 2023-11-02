@@ -175,3 +175,19 @@ bool Task::apply_rule(string rulename, string custom_name){
     Expression ruleexpr = this->rules[rulename];
     return this->apply_rule_expr(ruleexpr, custom_name);
 }
+
+// =============== Arithmetics
+bool Task::apply_arithmetic_to_both_side(Arithmetic::Operator op, string value, string custom_name){
+    string varname = "X";
+    Expression expr = {
+        EXPRESSION_OPERATOR_INFIX,
+        Arithmetic::operator_symbol.at(op),
+        false,
+        {
+            Expression::create_symbol(varname),
+            Expression::create_symbol(value),
+        }
+    };
+    if (custom_name == "") custom_name = Arithmetic::operator_name.at(op) + " both side by " + value;
+    return this->apply_function_to_both_side_expr(expr, varname, custom_name);
+}
