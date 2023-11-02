@@ -1,3 +1,4 @@
+#pragma once
 #include "libequaio.h"
 #include <string>
 
