@@ -1,5 +1,6 @@
 #include "arithmetic.h"
 #include "utils.h"
+#include "parser.h"
 
 using namespace Arithmetic;
 
@@ -55,7 +56,7 @@ optional<Expression> Arithmetic::create_calculation(string left, string right, O
     return std::nullopt;
 }
 
-// turn `a - b` into `a + (-b)`
+// turn `a - b` into `a + (_ b)`
 Expression Arithmetic::turn_subtraction_to_addition(Expression expr){
     bool is_subtraction = expr.type == EXPRESSION_OPERATOR_INFIX 
                         && expr.symbol == operator_symbol.at(OPERATOR_SUB);
@@ -79,4 +80,64 @@ Expression Arithmetic::turn_subtraction_to_addition(Expression expr){
         expr.child[i] = turn_subtraction_to_addition(expr.child[i]);
     }
     return expr;
+}
+
+// turn `a + (_ b)` into `a - b`
+Expression Arithmetic::turn_addition_to_subtraction(Expression expr){
+    bool is_addition = expr.type == EXPRESSION_OPERATOR_INFIX 
+                        && expr.symbol == operator_symbol.at(OPERATOR_ADD);
+    if (is_addition){
+        bool is_right_operand_a_minus = expr.child[1].type == EXPRESSION_OPERATOR_PREFIX
+                                        && expr.child[1].symbol == operator_symbol.at(OPERATOR_MINUS);
+        if (is_right_operand_a_minus){
+            return {
+                EXPRESSION_OPERATOR_INFIX,
+                operator_symbol.at(OPERATOR_SUB),
+                expr.bracketed,
+                {
+                    turn_addition_to_subtraction(expr.child[0]), 
+                    turn_addition_to_subtraction(expr.child[1].child[0])
+                },
+            };
+        }
+    }
+
+    // apply recursively to all children
+    for (size_t i = 0; i < expr.child.size(); i++){
+        expr.child[i] = turn_addition_to_subtraction(expr.child[i]);
+    }
+    return expr;
+}
+
+Expression Arithmetic::create_rule_commute(int pos_i, int pos_j, int count, Operator op){
+    vector<Token> tokens_from(2*count - 1);
+    vector<Token> tokens_to(2*count - 1);
+
+    // tokens_prev: _X0 + _X1 + _X2 + ... + _Xcount
+    for (int i = 0; i < count; i++){
+        tokens_from[2*i] = {TOKEN_SYMBOL, "_X" + std::to_string(i)};
+        if(i < count-1) tokens_from[2*i + 1] = {TOKEN_SYMBOL, operator_symbol.at(op)};
+    }
+
+    // topent: _X0 + _X1 + _X2 + ... + _Xcount (with _Xi and _Xj swapped)
+    for (int i = 0; i < count; i++){
+
+        int id = i;
+        if (i == pos_i) id = pos_j;
+        else if (i == pos_j) id = pos_i;
+
+        tokens_to[2*i] = {TOKEN_SYMBOL, "_X" + std::to_string(id)};
+        if(i < count-1) tokens_to[2*i + 1] = {TOKEN_SYMBOL, operator_symbol.at(op)};
+    }
+
+    tokens_from = normalize_tokens(tokens_from, arithmetic_context);
+    tokens_to = normalize_tokens(tokens_to, arithmetic_context);
+
+    auto expr_from = parse_expression_from_tokens(tokens_from, arithmetic_context);
+    if (!expr_from.has_value()) return {};
+
+    auto expr_to = parse_expression_from_tokens(tokens_to, arithmetic_context);
+    if (!expr_to.has_value()) return {};
+
+    return Expression::create_equality(expr_from.value(), expr_to.value());
 }

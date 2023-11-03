@@ -106,7 +106,7 @@ int find_correspoding_openparen(vector<Token> tokens, int start, int end){
 }
 
 
-optional<Expression> parse_expression_from_tokens(vector<Token> tokens, Context ctx, int start = 0, int end = -1)
+optional<Expression> parse_expression_from_tokens(vector<Token> tokens, Context ctx, int start, int end)
 {
     if (end == -1) end = tokens.size();
     Token token = tokens[start];
