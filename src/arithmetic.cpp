@@ -64,13 +64,13 @@ Expression Arithmetic::turn_subtraction_to_addition(Expression expr){
             EXPRESSION_OPERATOR_PREFIX,
             operator_symbol.at(OPERATOR_MINUS),
             true,
-            {expr.child[1]}
+            {turn_subtraction_to_addition(expr.child[1])}
         };
         return {
             EXPRESSION_OPERATOR_INFIX,
             operator_symbol.at(OPERATOR_ADD),
             expr.bracketed,
-            {expr.child[0], newright}
+            {turn_subtraction_to_addition(expr.child[0]), newright}
         };
     }
 
