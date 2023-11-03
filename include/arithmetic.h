@@ -27,5 +27,6 @@ const map<Operator, string> operator_name = {
 };
 
 optional<Expression> create_calculation(string left, string right, Operator op);
+Expression turn_subtraction_to_addition(Expression expr);
 
 }

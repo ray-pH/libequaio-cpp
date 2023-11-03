@@ -51,3 +51,29 @@ optional<Expression> Arithmetic::create_calculation(string left, string right, O
     }
     return std::nullopt;
 }
+
+// turn `a - b` into `a + (-b)`
+Expression Arithmetic::turn_subtraction_to_addition(Expression expr){
+    bool is_subtraction = expr.type == EXPRESSION_OPERATOR_INFIX 
+                        && expr.symbol == operator_symbol.at(OPERATOR_SUB);
+    if (is_subtraction){
+        Expression newright = {
+            EXPRESSION_OPERATOR_PREFIX,
+            operator_symbol.at(OPERATOR_SUB),
+            true,
+            {expr.child[1]}
+        };
+        return {
+            EXPRESSION_OPERATOR_INFIX,
+            operator_symbol.at(OPERATOR_ADD),
+            expr.bracketed,
+            {expr.child[0], newright}
+        };
+    }
+
+    // apply recursively to all children
+    for (size_t i = 0; i < expr.child.size(); i++){
+        expr.child[i] = turn_subtraction_to_addition(expr.child[i]);
+    }
+    return expr;
+}
