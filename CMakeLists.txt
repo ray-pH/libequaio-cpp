@@ -12,4 +12,15 @@ include_directories(include)
 file(GLOB SOURCES "src/*.cpp")
 
 # Create the executable
-add_executable(libequaio ${SOURCES})
+# add_executable(scratch ${SOURCES})
+add_library(equaio ${SOURCES})
+
+# =========================== TEST 
+
+include(CTest)
+enable_testing()
+
+file(GLOB TEST_SOURCES "test/*.cpp")
+add_executable(equaio_test ${TEST_SOURCES})
+target_link_libraries(equaio_test equaio)
+add_test(NAME Libequaio_test COMMAND equaio_test)
