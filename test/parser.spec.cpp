@@ -2,9 +2,6 @@
 #include "libequaio.h"
 #include "parser.h"
 
-#include <iostream>
-using namespace std;
-
 bool isToken(Token t, TokenType type, string value){
     return t.type == type && t.value == value;
 }
