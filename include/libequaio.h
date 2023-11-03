@@ -60,7 +60,7 @@ struct Expression {
     // only based on operators
     bool can_pattern_match(Expression pattern, Context ctx) const;
 
-    static vector<string> extract_variables(Expression expr);
+    vector<string> extract_variables() const;
 
     // return map that maps variables from pattern to expressions in this expression
     // NOTE : this->can_pattern_match(pattern) must be true

@@ -76,11 +76,11 @@ bool Expression::can_pattern_match(Expression pattern, Context ctx) const{
     return true;
 }
 
-vector<string> Expression::extract_variables(Expression expr){
-    if (expr.child.size() == 0 && expr.type == EXPRESSION_VALUE) return vector<string>{expr.symbol};
+vector<string> Expression::extract_variables() const{
+    if (this->child.size() == 0 && this->type == EXPRESSION_VALUE) return vector<string>{this->symbol};
     vector<string> variables;
-    for (size_t i = 0; i < expr.child.size(); i++){
-        auto child_variables = extract_variables(expr.child[i]);
+    for (size_t i = 0; i < this->child.size(); i++){
+        auto child_variables = this->child[i].extract_variables();
         variables.insert(variables.end(), child_variables.begin(), child_variables.end());
     }
     return variables;
