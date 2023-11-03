@@ -11,6 +11,7 @@ typedef enum{
     OPERATOR_SUB,
     OPERATOR_MUL,
     OPERATOR_DIV,
+    OPERATOR_MINUS,
 } Operator;
 
 const map<Operator, string> operator_symbol = {
@@ -18,6 +19,7 @@ const map<Operator, string> operator_symbol = {
     {OPERATOR_SUB, "-"},
     {OPERATOR_MUL, "*"},
     {OPERATOR_DIV, "/"},
+    {OPERATOR_MINUS, "_"}, // uniary minus e.g. -2, -12 written as _2, _12
 };
 const map<Operator, string> operator_name = {
     {OPERATOR_ADD, "add"},

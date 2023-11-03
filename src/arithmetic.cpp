@@ -43,6 +43,9 @@ Expression _create_calculation(T left, T right, Operator op){
 }
 
 optional<Expression> Arithmetic::create_calculation(string left, string right, Operator op){
+    // minus is a unary operator, which is different from subtraction
+    if (op == OPERATOR_MINUS) return std::nullopt;
+
     if (is_str_integer(left) && is_str_integer(right)){
         return _create_calculation(stoi(left), stoi(right), op);
     }
@@ -59,7 +62,7 @@ Expression Arithmetic::turn_subtraction_to_addition(Expression expr){
     if (is_subtraction){
         Expression newright = {
             EXPRESSION_OPERATOR_PREFIX,
-            operator_symbol.at(OPERATOR_SUB),
+            operator_symbol.at(OPERATOR_MINUS),
             true,
             {expr.child[1]}
         };
