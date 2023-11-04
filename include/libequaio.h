@@ -24,6 +24,7 @@ struct Token {
     string value;
 };
 
+typedef vector<int> address;
 
 typedef enum{
     EXPRESSION_OPERATOR_INFIX, // only for binary operators
@@ -59,6 +60,7 @@ struct Expression {
     // check if this expression can be matched by the pattern
     // only based on operators
     bool can_pattern_match(Expression pattern, Context ctx) const;
+    Expression at(address addr) const;
 
     vector<string> extract_variables() const;
 

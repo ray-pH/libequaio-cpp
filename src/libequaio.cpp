@@ -38,6 +38,15 @@ Expression Expression::copy() const{
     return expr;
 }
 
+Expression Expression::at(address addr) const{
+    Expression expr = *this;
+    if (addr.size() == 0) return expr;
+    for (size_t i = 0; i < addr.size()-1; i++){
+        expr = expr.child[addr[i]];
+    }
+    return expr.child[addr.back()];
+}
+
 string Expression::to_string() const {
     string str = "";
     bool no_child = child.size() == 0;
