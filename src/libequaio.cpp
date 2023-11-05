@@ -47,6 +47,23 @@ Expression Expression::at(address addr) const{
     return expr.child[addr.back()];
 }
 
+vector<address> _get_all_address(Expression expr, address history){
+    vector<address> result = {history};
+    if (expr.child.size() <= 0) return result;
+
+    for (size_t i = 0; i < expr.child.size(); i++){
+        address newh(history);
+        newh.push_back(i);
+        auto child_all_address = _get_all_address(expr.child[i], newh);
+        result.insert(result.end(), child_all_address.begin(), child_all_address.end());
+    }
+    return result;
+}
+
+vector<address> Expression::get_all_address() const{
+    return _get_all_address(*this, {});
+}
+
 string Expression::to_string() const {
     string str = "";
     bool no_child = child.size() == 0;
@@ -93,6 +110,32 @@ vector<string> Expression::extract_variables() const{
         variables.insert(variables.end(), child_variables.begin(), child_variables.end());
     }
     return variables;
+}
+
+vector<address> _get_operator_chains_from(Expression root_expr, address addr, bool from_top){
+    Expression expr      = root_expr.at(addr);
+    string this_symbol   = expr.symbol;
+    if (addr.size() > 0 && !from_top){
+        address parent_addr = {addr.begin(), addr.end()-1};
+        string parent_symbol = root_expr.at(parent_addr).symbol;
+        if (this_symbol == parent_symbol) return _get_operator_chains_from(root_expr, parent_addr, false);
+    }
+
+    vector<address> operator_chains = {addr};
+    for (size_t i = 0; i < expr.child.size(); i++){
+        address child_addr(addr);
+        child_addr.push_back(i);
+
+        string child_symbol = expr.child[i].symbol;
+        if (child_symbol != this_symbol) continue;
+        auto child_operator_chains = _get_operator_chains_from(root_expr, child_addr, true);
+        operator_chains.insert(operator_chains.end(), child_operator_chains.begin(), child_operator_chains.end());
+    }
+    return operator_chains;
+}
+
+vector<address> Expression::get_operator_chains_from(address addr) const{
+    return _get_operator_chains_from(*this, addr, false);
 }
 
 // return map that maps variables from pattern to expressions in this expression

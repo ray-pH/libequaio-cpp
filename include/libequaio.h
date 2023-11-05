@@ -61,8 +61,11 @@ struct Expression {
     // only based on operators
     bool can_pattern_match(Expression pattern, Context ctx) const;
     Expression at(address addr) const;
+    vector<address> get_all_address() const;
 
     vector<string> extract_variables() const;
+    vector<address> get_operator_chains_from(address addr) const;
+    // vector<vector<address>> get_all_operator_chains() const;
 
     // return map that maps variables from pattern to expressions in this expression
     // NOTE : this->can_pattern_match(pattern) must be true
