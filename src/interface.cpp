@@ -60,11 +60,15 @@ void Task::print_state() const{
     }
 } 
 
+void Task::set_current_expr(Expression expr, string msg){
+    this->current = expr;
+    this->history.push_back({expr, msg});
+}
+
 bool Task::set_current_eq(string exprstr){
     auto expr = parse_statement(exprstr, "=", this->context);
     if (!expr.has_value()) return false;
-    this->current = expr.value();
-    this->history.push_back({expr.value(), ""});
+    this->set_current_expr(expr.value(), "");
     return true;
 }
 bool Task::set_target_eq(string exprstr){
@@ -125,8 +129,7 @@ bool Task::apply_function_to_both_side_expr(Expression fexpr, string varname, st
     replace_expression_symbol(new_rhs, varname, rhs);
 
     Expression newexpr = Expression::create_equality(new_lhs, new_rhs);
-    this->current = newexpr;
-    this->history.push_back({newexpr, custom_name});
+    this->set_current_expr(newexpr, custom_name);
     return true;
 }
 
@@ -160,8 +163,7 @@ bool Task::apply_rule_expr(Expression expr, string name){
 
     // FIXME: for now only take the first result
     Expression newcurrent = results[0];
-    this->current = newcurrent;
-    this->history.push_back({newcurrent, name});
+    this->set_current_expr(newcurrent, name);
     return true;
 }
 
@@ -202,3 +204,11 @@ bool Task::apply_arithmetic_calculation(string left, string right, Arithmetic::O
     if (custom_name == "") custom_name = "calculate " + expr->to_string();
     return this->apply_rule_expr(expr.value(), custom_name);
 }
+
+bool Task::apply_arithmetic_turn_subtraction_to_addition(string custom_name){
+    if (custom_name == "") custom_name = "turn subtraction to addition";
+    auto expr = Arithmetic::turn_subtraction_to_addition(this->current.value());
+    this->set_current_expr(expr, custom_name);
+    return true;
+}
+
