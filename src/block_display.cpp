@@ -36,33 +36,46 @@ std::ostream& BlockDisplay::operator<<(std::ostream& os, const Block& b){
 const Block openparen = { VALUE, "(" };
 const Block closeparen = { VALUE, ")" };
 
-Block BlockDisplay::from_expression(Expression expr, Context ctx){
+Block __from_expression(Expression &rootexpr, address addr, Context ctx){
     (void)ctx;
+
+    auto expr = rootexpr.at(addr);
     switch (expr.type){
         case EXPRESSION_OPERATOR_BINARY: {
-            Block self = { VALUE, expr.symbol };
+            Block self = { VALUE, expr.symbol, {}, {addr, &rootexpr} };
             Block container = { BASIC, "", {self} };
 
-            Block left  = from_expression(expr.child[0], ctx);
-            Block right = from_expression(expr.child[1], ctx);
+            address addrleft(addr);
+            addrleft.push_back(0);
+            Block left  = __from_expression(rootexpr, addrleft, ctx);
+            address addrright(addr);
+            addrright.push_back(1);
+            Block right = __from_expression(rootexpr, addrright, ctx);
 
             container.append(right.child);
             container.prepend(left.child);
             return container;
         }
         case EXPRESSION_OPERATOR_UNARY: {
-            Block self = { VALUE, expr.symbol };
+            Block self = { VALUE, expr.symbol, {}, {addr, &rootexpr} };
             Block container = { BASIC, "", {self} };
 
-            Block inner = from_expression(expr.child[0], ctx);
+            address addrinner(addr);
+            addrinner.push_back(0);
+            Block inner = __from_expression(rootexpr, addrinner, ctx);
             container.append(inner.child);
             return container;
         }
         case EXPRESSION_VALUE: {
-            Block inner = { VALUE, expr.symbol };
+            Block inner = { VALUE, expr.symbol, {}, {addr, &rootexpr}};
             Block container = { BASIC, "", {inner} };
             return container;
         }
     }
     return {};
+}
+
+Block BlockDisplay::from_expression(Expression expr, Context ctx){
+    (void)ctx;
+    return __from_expression(expr, {}, ctx);
 }

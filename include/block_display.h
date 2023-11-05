@@ -10,13 +10,20 @@ typedef enum{
     FRAC,  // two children, for the top and the bottom
 } Type;
 
+struct MetaData{
+    address addr;
+    Expression* expr;
+};
+
 // Type type;
 // string value;
 // vector<Block> child;
+// MetaData metadata;
 struct Block{
     Type type;
     string value;
     vector<Block> child;
+    MetaData metadata;
 
     void append(Block b);
     void append(vector<Block> b);
