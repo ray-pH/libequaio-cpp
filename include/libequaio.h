@@ -5,11 +5,13 @@
 #include <vector>
 #include <algorithm>
 #include <map>
+#include <tuple>
 
 using std::optional; 
 using std::string; 
 using std::vector; 
 using std::map;
+using std::tuple;
 
 typedef enum {
     TOKEN_SYMBOL,
@@ -27,19 +29,19 @@ struct Token {
 typedef vector<int> address;
 
 typedef enum{
-    EXPRESSION_OPERATOR_INFIX, // only for binary operators
-    EXPRESSION_OPERATOR_PREFIX,
+    EXPRESSION_OPERATOR_BINARY,
+    EXPRESSION_OPERATOR_UNARY,
     EXPRESSION_VALUE,
 } ExpType;
 
 // vector<string> variables;
-// vector<string> infix\_operators; 
-// vector<string> prefix\_operators; 
+// vector<string> binary\_operators; 
+// vector<string> unary\_operators; 
 // bool handle\_numerics;             
 struct Context{
     vector<string> variables;
-    vector<string> infix_operators;  //also include ','
-    vector<string> prefix_operators; //also include functions
+    vector<string> binary_operators; // also include ','
+    vector<string> unary_operators;  // also include functions
     bool handle_numerics;            // true if numbers are allowed
 };
 
@@ -51,7 +53,7 @@ struct Expression {
     ExpType type;
     string  symbol;
     bool    bracketed;
-    vector<Expression> child;
+    vector<Expression> child; // can only have 1 or 2 member
 
     Expression copy() const;
     string to_string() const;

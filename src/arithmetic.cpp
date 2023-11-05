@@ -35,7 +35,7 @@ Expression _create_calculation(T left, T right, Operator op){
     Expression exprright = Expression::create_symbol(std::to_string(right));
     Expression rhs = Expression::create_symbol(std::to_string(result));
     Expression lhs = {
-        EXPRESSION_OPERATOR_INFIX,
+        EXPRESSION_OPERATOR_BINARY,
         operator_symbol.at(op),
         false,
         {exprleft, exprright}
@@ -58,17 +58,17 @@ optional<Expression> Arithmetic::create_calculation(string left, string right, O
 
 // turn `a - b` into `a + (_ b)`
 Expression Arithmetic::turn_subtraction_to_addition(Expression expr){
-    bool is_subtraction = expr.type == EXPRESSION_OPERATOR_INFIX 
+    bool is_subtraction = expr.type == EXPRESSION_OPERATOR_BINARY 
                         && expr.symbol == operator_symbol.at(OPERATOR_SUB);
     if (is_subtraction){
         Expression newright = {
-            EXPRESSION_OPERATOR_PREFIX,
+            EXPRESSION_OPERATOR_UNARY,
             operator_symbol.at(OPERATOR_MINUS),
             true,
             {turn_subtraction_to_addition(expr.child[1])}
         };
         return {
-            EXPRESSION_OPERATOR_INFIX,
+            EXPRESSION_OPERATOR_BINARY,
             operator_symbol.at(OPERATOR_ADD),
             expr.bracketed,
             {turn_subtraction_to_addition(expr.child[0]), newright}
@@ -84,14 +84,14 @@ Expression Arithmetic::turn_subtraction_to_addition(Expression expr){
 
 // turn `a + (_ b)` into `a - b`
 Expression Arithmetic::turn_addition_to_subtraction(Expression expr){
-    bool is_addition = expr.type == EXPRESSION_OPERATOR_INFIX 
+    bool is_addition = expr.type == EXPRESSION_OPERATOR_BINARY 
                         && expr.symbol == operator_symbol.at(OPERATOR_ADD);
     if (is_addition){
-        bool is_right_operand_a_minus = expr.child[1].type == EXPRESSION_OPERATOR_PREFIX
+        bool is_right_operand_a_minus = expr.child[1].type == EXPRESSION_OPERATOR_UNARY
                                         && expr.child[1].symbol == operator_symbol.at(OPERATOR_MINUS);
         if (is_right_operand_a_minus){
             return {
-                EXPRESSION_OPERATOR_INFIX,
+                EXPRESSION_OPERATOR_BINARY,
                 operator_symbol.at(OPERATOR_SUB),
                 expr.bracketed,
                 {

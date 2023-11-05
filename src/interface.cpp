@@ -10,14 +10,6 @@
 using std::cout;
 using std::endl;
 
-// vector<string> variables;
-// vector<string> binary_operators; //also include ','
-// vector<string> prefix_operators; //also include functions
-//
-// Context context;
-// map<string,Expression> rules;
-// Expression target;
-// optional<Expression> current;
 const string INDENT = "   ";
 void Task::print_state() const{
     cout << "history:" << endl;
@@ -182,7 +174,7 @@ bool Task::apply_rule(string rulename, string custom_name){
 bool Task::apply_arithmetic_to_both_side(Arithmetic::Operator op, string value, string custom_name){
     string varname = "X";
     Expression expr = {
-        EXPRESSION_OPERATOR_INFIX,
+        EXPRESSION_OPERATOR_BINARY,
         Arithmetic::operator_symbol.at(op),
         false,
         {

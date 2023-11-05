@@ -2,18 +2,18 @@
 #include "utils.h"
 #include "parser.h"
 
-vector<Token> _normalize_tokens_add_prefix_brackets(vector<Token> tokens, Context ctx){
+vector<Token> _normalize_tokens_add_unary_brackets(vector<Token> tokens, Context ctx){
     size_t pointer = 0;
     while (pointer < tokens.size()-1){
         Token token = tokens[pointer]; 
 
-        // skip non prefix operators
-        if (!vector_contain(token.value, ctx.prefix_operators)){
+        // skip non unary operators
+        if (!vector_contain(token.value, ctx.unary_operators)){
             pointer++;
             continue;
         }
 
-        // add brackets for prefix operators
+        // add brackets for unary operators
         tokens.insert(tokens.begin()+pointer, Token{TOKEN_OPENPAREN, "("});
         pointer++;
 
@@ -34,13 +34,13 @@ vector<Token> _normalize_tokens_add_prefix_brackets(vector<Token> tokens, Contex
     return tokens;
 }
 
-vector<Token> _normalize_tokes_add_infix_brackets(vector<Token> tokens, Context ctx){
+vector<Token> _normalize_tokes_add_binary_brackets(vector<Token> tokens, Context ctx){
     size_t pointer = 1;
     while (pointer < tokens.size()-1){
         Token token = tokens[pointer];
 
-        // skip non infix operators
-        if (!vector_contain(token.value, ctx.infix_operators)){
+        // skip non binary operators
+        if (!vector_contain(token.value, ctx.binary_operators)){
             pointer++;
             continue;
         }
@@ -78,9 +78,9 @@ vector<Token> _normalize_tokes_add_infix_brackets(vector<Token> tokens, Context 
 }
 
 vector<Token> normalize_tokens(vector<Token> tokens, Context ctx){
-    auto normalized_prefix = _normalize_tokens_add_prefix_brackets(tokens, ctx);
-    auto normalized_infix  = _normalize_tokes_add_infix_brackets(normalized_prefix, ctx);
-    return normalized_infix;
+    auto normalized_unary = _normalize_tokens_add_unary_brackets(tokens, ctx);
+    auto normalized_binary  = _normalize_tokes_add_binary_brackets(normalized_unary, ctx);
+    return normalized_binary;
 }
 
 
@@ -119,15 +119,15 @@ optional<Expression> parse_expression_from_tokens(vector<Token> tokens, Context 
     // cout << endl;
     //debug
 
-    // PREFIX OPERATOR
-    bool is_prefix_operator = vector_contain(token.value, ctx.prefix_operators);
-    if (is_prefix_operator){
+    // UNARY OPERATOR
+    bool is_unary_operator = vector_contain(token.value, ctx.unary_operators);
+    if (is_unary_operator){
         if (start+1 >= end) return std::nullopt;
         auto rightexpr_maybe = parse_expression_from_tokens(tokens, ctx, start+1, end);
         if (!rightexpr_maybe.has_value()) return std::nullopt;
         Expression rightexpr = rightexpr_maybe.value();
         Expression expr = {
-            EXPRESSION_OPERATOR_PREFIX,
+            EXPRESSION_OPERATOR_UNARY,
             token.value,
             false,
             {rightexpr},
@@ -135,9 +135,9 @@ optional<Expression> parse_expression_from_tokens(vector<Token> tokens, Context 
         return std::make_optional(expr);
     }
 
-    // Make sure we don't find infix operator in the front
-    bool is_infix_operator = vector_contain(token.value, ctx.infix_operators);
-    if (is_infix_operator) return std::nullopt;
+    // Make sure we don't find binary operator in the front
+    bool is_binary_operator = vector_contain(token.value, ctx.binary_operators);
+    if (is_binary_operator) return std::nullopt;
 
     // VALUE (single value or expr inside a bracked)
     Expression leftexpr;
@@ -162,17 +162,17 @@ optional<Expression> parse_expression_from_tokens(vector<Token> tokens, Context 
     // if there is nothing left, return
     if (rightmost_parsed+1 >= end) return std::make_optional(leftexpr);
 
-    // if there is something, make sure it's an infix operator
+    // if there is something, make sure it's an binary operator
     Token next_token = tokens[rightmost_parsed+1];
-    bool is_infix_operator_next = vector_contain(next_token.value, ctx.infix_operators);
-    if (!is_infix_operator_next) return std::nullopt;
+    bool is_binary_operator_next = vector_contain(next_token.value, ctx.binary_operators);
+    if (!is_binary_operator_next) return std::nullopt;
 
-    // INFIX OPERATOR
+    // BINARY OPERATOR
     auto rightexpr_maybe = parse_expression_from_tokens(tokens, ctx, rightmost_parsed+2, end);
     if (!rightexpr_maybe.has_value()) return std::nullopt;
     Expression rightexpr = rightexpr_maybe.value();
     Expression expr = {
-        EXPRESSION_OPERATOR_INFIX,
+        EXPRESSION_OPERATOR_BINARY,
         next_token.value,
         true,
         {leftexpr, rightexpr},
@@ -218,26 +218,26 @@ optional<Expression> parse_expression_from_tokens_old(vector<Token> tokens, Cont
     if (rightmost_parsed+1 >= end) return leftexpr;
 
     // check if next token is a binary operator
-    if (vector_contain(tokens[rightmost_parsed+1].value, ctx.infix_operators)){
+    if (vector_contain(tokens[rightmost_parsed+1].value, ctx.binary_operators)){
         if (rightmost_parsed+2 >= end) return std::nullopt;
 
         auto rightexpr = parse_expression_from_tokens_old(tokens, ctx, rightmost_parsed+2, end);
         if (!rightexpr.has_value()) return std::nullopt;
 
         Expression expr = {
-            EXPRESSION_OPERATOR_INFIX, 
+            EXPRESSION_OPERATOR_BINARY, 
             tokens[rightmost_parsed+1].value, 
             true, 
             {leftexpr.value(), rightexpr.value()}
         };
         return std::make_optional(expr);
     } else {
-        // assume this is a prefix operator
+        // assume this is a unary operator
         auto rightexpr = parse_expression_from_tokens_old(tokens, ctx, rightmost_parsed+1, end);
         if (!rightexpr.has_value()) return std::nullopt;
 
         Expression expr = {
-            EXPRESSION_OPERATOR_PREFIX, 
+            EXPRESSION_OPERATOR_UNARY, 
             tokens[rightmost_parsed+1].value, 
             true, 
             {rightexpr.value()}
@@ -281,7 +281,7 @@ optional<Expression> parse_statement(string str, string statement_symbol, Contex
     if (!rightexpr.has_value()) return std::nullopt;
 
     return Expression{
-        EXPRESSION_OPERATOR_INFIX, 
+        EXPRESSION_OPERATOR_BINARY, 
         statement_symbol, 
         false, 
         {leftexpr.value(), rightexpr.value()}

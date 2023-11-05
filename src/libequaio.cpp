@@ -1,18 +1,9 @@
-#include <optional>
-#include <string>
-#include <vector>
 #include <iostream>
 #include <assert.h>
-#include <algorithm>
-#include <map>
 #include "libequaio.h"
 #include "utils.h"
 
-using std::optional; 
-using std::string; 
-using std::vector; 
 using std::endl; 
-using std::map;
 
 std::ostream& operator<<(std::ostream& os, const Token& token){
     switch (token.type){
@@ -68,10 +59,10 @@ string Expression::to_string() const {
     string str = "";
     bool no_child = child.size() == 0;
     if (bracketed && !no_child) str += "(";
-    if (type == EXPRESSION_OPERATOR_PREFIX){
+    if (type == EXPRESSION_OPERATOR_UNARY){
         str += symbol;
         str += child[0].to_string();
-    } else if (type == EXPRESSION_OPERATOR_INFIX){
+    } else if (type == EXPRESSION_OPERATOR_BINARY){
         str += child[0].to_string();
         str += " " + symbol + " ";
         str += child[1].to_string();
@@ -226,10 +217,10 @@ bool operator!=(const Expression& lhs, const Expression& rhs){
     
 std::ostream& operator<<(std::ostream& os, const Expression& exp){
     switch (exp.type){
-        case EXPRESSION_OPERATOR_INFIX:
-            os << "EXPRESSION_OPERATOR_INFIX: " << exp.symbol; break;
-        case EXPRESSION_OPERATOR_PREFIX:
-            os << "EXPRESSION_OPERATOR_PREFIX: " << exp.symbol; break;
+        case EXPRESSION_OPERATOR_BINARY:
+            os << "EXPRESSION_OPERATOR_BINARY: " << exp.symbol; break;
+        case EXPRESSION_OPERATOR_UNARY:
+            os << "EXPRESSION_OPERATOR_UNARY: " << exp.symbol; break;
         case EXPRESSION_VALUE:
             os << "EXPRESSION_VALUE: " << exp.symbol; break;
     }
@@ -281,7 +272,7 @@ Expression Expression::create_equality(Expression lhs, Expression rhs){
     lhs.bracketed = false;
     rhs.bracketed = false;
     return {
-        EXPRESSION_OPERATOR_INFIX,
+        EXPRESSION_OPERATOR_BINARY,
         "=",
         false,
         { lhs, rhs }
