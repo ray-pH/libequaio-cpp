@@ -12,8 +12,10 @@ include_directories(include)
 file(GLOB SOURCES "src/*.cpp")
 
 # Create the executable
-add_executable(scratch ${SOURCES})
 add_library(equaio ${SOURCES})
+
+add_executable(scratch src/scratchpad.cpp)
+target_link_libraries(scratch equaio)
 
 # =========================== TEST 
 
