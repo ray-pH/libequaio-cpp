@@ -8,3 +8,4 @@ runscratch.sh
 scratch
 src/scratchpad.cpp
 build
+src/*.os
