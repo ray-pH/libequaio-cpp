@@ -5,18 +5,6 @@
 
 using std::endl; 
 
-std::ostream& operator<<(std::ostream& os, const Token& token){
-    switch (token.type){
-        case TOKEN_SYMBOL:
-            os << "TOKEN_SYMBOL: " << token.value; break;
-        case TOKEN_OPENPAREN:
-            os << "TOKEN_OPENPAREN"; break;
-        case TOKEN_CLOSEPAREN:
-            os << "TOKEN_CLOSEPAREN"; break;
-    }
-    return os;
-}
-
 Expression Expression::copy() const{
     Expression expr = {
         type, 
@@ -232,39 +220,6 @@ std::ostream& operator<<(std::ostream& os, const Expression& exp){
     return os;
 }
 
-// struct Statement {
-// }
-
-vector<Token> tokenize(string str){
-    vector<Token> tokens;
-    string current_token = "";
-    for (size_t i = 0; i < str.length(); i++){
-        if (str[i] == '('){
-            if (current_token != ""){
-                tokens.push_back({TOKEN_SYMBOL, current_token});
-                current_token = "";
-            }
-            tokens.push_back({TOKEN_OPENPAREN, ""});
-        } else if (str[i] == ')'){
-            if (current_token != ""){
-                tokens.push_back({TOKEN_SYMBOL, current_token});
-                current_token = "";
-            }
-            tokens.push_back({TOKEN_CLOSEPAREN, ""});
-        } else if (str[i] == ' '){
-            if (current_token != ""){
-                tokens.push_back({TOKEN_SYMBOL, current_token});
-                current_token = "";
-            }
-        } else {
-            current_token += str[i];
-        }
-    }
-    if (current_token != ""){
-        tokens.push_back({TOKEN_SYMBOL, current_token});
-    }
-    return tokens;
-}
 
 /// ================= helper functions ================================
 

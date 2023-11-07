@@ -13,19 +13,6 @@ using std::vector;
 using std::map;
 using std::tuple;
 
-typedef enum {
-    TOKEN_SYMBOL,
-    TOKEN_OPENPAREN,
-    TOKEN_CLOSEPAREN,
-} TokenType;
-
-// TokenType type;
-// string value;
-struct Token {
-    TokenType type;
-    string value;
-};
-
 typedef vector<int> address;
 
 typedef enum{
@@ -83,5 +70,4 @@ struct Expression {
     static Expression create_symbol(string symbol);
 };
 
-std::ostream& operator<<(std::ostream& os, const Token& token);
 std::ostream& operator<<(std::ostream& os, const Expression& exp);

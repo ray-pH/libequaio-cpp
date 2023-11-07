@@ -1,4 +1,19 @@
 #include "libequaio.h"
+#include <iostream>
+
+typedef enum {
+    TOKEN_SYMBOL,
+    TOKEN_OPENPAREN,
+    TOKEN_CLOSEPAREN,
+} TokenType;
+
+// TokenType type;
+// string value;
+struct Token {
+    TokenType type;
+    string value;
+};
+std::ostream& operator<<(std::ostream& os, const Token& token);
 
 vector<Token> tokenize(string str);
 vector<Token> normalize_tokens(vector<Token> tokens, Context ctx);
