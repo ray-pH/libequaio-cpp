@@ -2,7 +2,6 @@
 #include <assert.h>
 #include <iomanip>
 #include <type_traits>
-#include "libequaio.h"
 #include "interface.h"
 #include "utils.h"
 #include "parser.h"
