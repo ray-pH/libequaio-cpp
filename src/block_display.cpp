@@ -33,17 +33,15 @@ std::ostream& BlockDisplay::operator<<(std::ostream& os, const Block& b){
 
 
 
-const Block openparen = { VALUE, "(" };
-const Block closeparen = { VALUE, ")" };
-
 Block __from_expression(Expression &rootexpr, address addr, Context ctx){
     (void)ctx;
 
     auto expr = rootexpr.at(addr);
+    Block container;
     switch (expr.type){
         case EXPRESSION_OPERATOR_BINARY: {
             Block self = { VALUE, expr.symbol, {}, {addr, &rootexpr} };
-            Block container = { BASIC, "", {self} };
+            container = { BASIC, "", {self} };
 
             address addrleft(addr);
             addrleft.push_back(0);
@@ -54,25 +52,32 @@ Block __from_expression(Expression &rootexpr, address addr, Context ctx){
 
             container.prepend(left.children);
             container.append(right.children);
-            return container;
+            break;
         }
         case EXPRESSION_OPERATOR_UNARY: {
             Block self = { VALUE, expr.symbol, {}, {addr, &rootexpr} };
-            Block container = { BASIC, "", {self} };
+            container = { BASIC, "", {self} };
 
             address addrinner(addr);
             addrinner.push_back(0);
             Block inner = __from_expression(rootexpr, addrinner, ctx);
             container.append(inner.children);
-            return container;
+            break;
         }
         case EXPRESSION_VALUE: {
             Block inner = { VALUE, expr.symbol, {}, {addr, &rootexpr}};
-            Block container = { BASIC, "", {inner} };
-            return container;
+            container = { BASIC, "", {inner} };
+            break;
         }
     }
-    return {};
+    if (expr.bracketed){
+        // container.prepend(openparen);
+        // container.append(closeparen);
+        container.prepend({ VALUE, "(", {}, {addr, &rootexpr} });
+        container.append({ VALUE, ")", {}, {addr, &rootexpr} });
+    }
+    return container;
+    // return {};
 }
 
 Block BlockDisplay::from_expression(Expression expr, Context ctx){
