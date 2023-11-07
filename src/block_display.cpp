@@ -4,16 +4,16 @@
 
 using namespace BlockDisplay;
 
-void BlockDisplay::Block::append(Block b){ this->child.push_back(b); }
-void BlockDisplay::Block::append(vector<Block> b){ this->child.insert(this->child.end(), b.begin(), b.end()); }
-void BlockDisplay::Block::prepend(Block b){ this->child.insert(this->child.begin(), b); }
-void BlockDisplay::Block::prepend(vector<Block> b){ this->child.insert(this->child.begin(), b.begin(), b.end()); }
+void BlockDisplay::Block::append(Block b){ this->children.push_back(b); }
+void BlockDisplay::Block::append(vector<Block> b){ this->children.insert(this->children.end(), b.begin(), b.end()); }
+void BlockDisplay::Block::prepend(Block b){ this->children.insert(this->children.begin(), b); }
+void BlockDisplay::Block::prepend(vector<Block> b){ this->children.insert(this->children.begin(), b.begin(), b.end()); }
 
 string BlockDisplay::Block::to_string() const{
     switch (this->type){
         case BASIC:{
             string st = "";
-            for (const auto& c : this->child){
+            for (const auto& c : this->children){
                 st += c.to_string() + " ";
             }
             return st;
@@ -21,8 +21,8 @@ string BlockDisplay::Block::to_string() const{
         case VALUE:
             return this->value;
         case FRAC:
-            return "{" + this->child[0].to_string() + "}" 
-                    + "/" + "{" + this->child[1].to_string() + "}";
+            return "{" + this->children[0].to_string() + "}" 
+                    + "/" + "{" + this->children[1].to_string() + "}";
     }
     return "";
 }
@@ -52,8 +52,8 @@ Block __from_expression(Expression &rootexpr, address addr, Context ctx){
             addrright.push_back(1);
             Block right = __from_expression(rootexpr, addrright, ctx);
 
-            container.append(right.child);
-            container.prepend(left.child);
+            container.prepend(left.children);
+            container.append(right.children);
             return container;
         }
         case EXPRESSION_OPERATOR_UNARY: {
@@ -63,7 +63,7 @@ Block __from_expression(Expression &rootexpr, address addr, Context ctx){
             address addrinner(addr);
             addrinner.push_back(0);
             Block inner = __from_expression(rootexpr, addrinner, ctx);
-            container.append(inner.child);
+            container.append(inner.children);
             return container;
         }
         case EXPRESSION_VALUE: {

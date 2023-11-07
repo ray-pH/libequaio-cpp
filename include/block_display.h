@@ -22,7 +22,7 @@ struct MetaData{
 struct Block{
     Type type;
     string value;
-    vector<Block> child;
+    vector<Block> children;
     MetaData metadata;
 
     void append(Block b);
