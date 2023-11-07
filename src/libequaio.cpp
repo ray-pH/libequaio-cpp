@@ -30,12 +30,12 @@ Expression Expression::copy() const{
 }
 
 Expression Expression::at(address addr) const{
-    Expression expr = *this;
-    if (addr.size() == 0) return expr;
+    const Expression *expr = this;
+    if (addr.size() == 0) return *expr;
     for (size_t i = 0; i < addr.size()-1; i++){
-        expr = expr.children[addr[i]];
+        expr = &expr->children[addr[i]];
     }
-    return expr.children[addr.back()];
+    return expr->children[addr.back()];
 }
 
 vector<address> _get_all_address(Expression expr, address history){
