@@ -45,8 +45,8 @@ vector<address> Expression::get_all_address() const{
 
 string Expression::to_string() const {
     string str = "";
-    bool no_child = children.size() == 0;
-    if (bracketed && !no_child) str += "(";
+    // bool no_child = children.size() == 0;
+    if (bracketed) str += "(";
     if (type == EXPRESSION_OPERATOR_UNARY){
         str += symbol;
         str += children[0].to_string();
@@ -57,7 +57,7 @@ string Expression::to_string() const {
     } else if (type == EXPRESSION_VALUE){
         str += symbol;
     }
-    if (bracketed && !no_child) str += ")";
+    if (bracketed) str += ")";
     return str;
 }
 
@@ -116,6 +116,28 @@ vector<address> _get_operator_chains_from(Expression root_expr, address addr, bo
 vector<address> Expression::get_operator_chains_from(address addr) const{
     return _get_operator_chains_from(*this, addr, false);
 }
+
+void Expression::strip_parentheses_for_associative_op(string op){
+    switch (this->type){
+        case EXPRESSION_VALUE:{ return; }
+        case EXPRESSION_OPERATOR_UNARY:{
+            for (auto &child : this->children) child.strip_parentheses_for_associative_op(op);
+            return;
+        }
+        case EXPRESSION_OPERATOR_BINARY:{
+            if (this->symbol == op) {
+                for (auto &child : this->children){
+                    if (child.symbol == op) child.bracketed = false;
+                    child.strip_parentheses_for_associative_op(op);
+                }
+            }else{
+                for (auto &child : this->children) child.strip_parentheses_for_associative_op(op);
+                return;
+            }
+        }
+    }
+}
+
 
 // return map that maps variables from pattern to expressions in this expression
 // NOTE : this->can_pattern_match(pattern) must be true

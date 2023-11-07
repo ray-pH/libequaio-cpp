@@ -109,6 +109,13 @@ Expression Arithmetic::turn_addition_to_subtraction(Expression expr){
     return expr;
 }
 
+Expression Arithmetic::remove_assoc_parentheses(Expression expr){
+    auto newexpr = expr.copy();
+    newexpr.strip_parentheses_for_associative_op(operator_symbol.at(OPERATOR_ADD));
+    newexpr.strip_parentheses_for_associative_op(operator_symbol.at(OPERATOR_MUL));
+    return newexpr;
+}
+
 Expression Arithmetic::create_rule_commute(int pos_i, int pos_j, int count, Operator op){
     vector<Token> tokens_from(2*count - 1);
     vector<Token> tokens_to(2*count - 1);

@@ -46,6 +46,7 @@ Expression create_rule_commute(int pos_i, int pos_j, int count, Operator op);
 
 Expression turn_subtraction_to_addition(Expression expr);
 Expression turn_addition_to_subtraction(Expression expr);
+Expression remove_assoc_parentheses(Expression expr);
 inline Expression create_rule_commute_addition(int pos_i, int pos_j, int count){
     return create_rule_commute(pos_i, pos_j, count, OPERATOR_ADD);
 };
