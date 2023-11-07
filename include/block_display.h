@@ -13,6 +13,8 @@ typedef enum{
 struct MetaData{
     address addr;
     Expression* expr;
+    address leftaddr;
+    address rightaddr;
 };
 
 // Type type;

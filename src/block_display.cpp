@@ -80,7 +80,22 @@ Block __from_expression(Expression &rootexpr, address addr, Context ctx){
     // return {};
 }
 
+void __setup_leftright_metadata(Block* block){
+    for (size_t i = 0; i < block->children.size(); i++){
+        if (block->children[i].type == BlockDisplay::VALUE){
+            address leftaddr = i > 0 ? block->children[i-1].metadata.addr : address();
+            address rightaddr = i < block->children.size()-1 ? block->children[i+1].metadata.addr : address();
+            block->children[i].metadata.leftaddr = leftaddr;
+            block->children[i].metadata.rightaddr = rightaddr;
+        }else{
+            __setup_leftright_metadata(&block->children[i]);
+        }
+    }
+}
+
 Block BlockDisplay::from_expression(Expression expr, Context ctx){
     (void)ctx;
-    return __from_expression(expr, {}, ctx);
+    auto block = __from_expression(expr, {}, ctx);
+    __setup_leftright_metadata(&block);
+    return block;
 }
