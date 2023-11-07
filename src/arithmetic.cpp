@@ -65,19 +65,19 @@ Expression Arithmetic::turn_subtraction_to_addition(Expression expr){
             EXPRESSION_OPERATOR_UNARY,
             operator_symbol.at(OPERATOR_MINUS),
             true,
-            {turn_subtraction_to_addition(expr.child[1])}
+            {turn_subtraction_to_addition(expr.children[1])}
         };
         return {
             EXPRESSION_OPERATOR_BINARY,
             operator_symbol.at(OPERATOR_ADD),
             expr.bracketed,
-            {turn_subtraction_to_addition(expr.child[0]), newright}
+            {turn_subtraction_to_addition(expr.children[0]), newright}
         };
     }
 
     // apply recursively to all children
-    for (size_t i = 0; i < expr.child.size(); i++){
-        expr.child[i] = turn_subtraction_to_addition(expr.child[i]);
+    for (size_t i = 0; i < expr.children.size(); i++){
+        expr.children[i] = turn_subtraction_to_addition(expr.children[i]);
     }
     return expr;
 }
@@ -87,24 +87,24 @@ Expression Arithmetic::turn_addition_to_subtraction(Expression expr){
     bool is_addition = expr.type == EXPRESSION_OPERATOR_BINARY 
                         && expr.symbol == operator_symbol.at(OPERATOR_ADD);
     if (is_addition){
-        bool is_right_operand_a_minus = expr.child[1].type == EXPRESSION_OPERATOR_UNARY
-                                        && expr.child[1].symbol == operator_symbol.at(OPERATOR_MINUS);
+        bool is_right_operand_a_minus = expr.children[1].type == EXPRESSION_OPERATOR_UNARY
+                                        && expr.children[1].symbol == operator_symbol.at(OPERATOR_MINUS);
         if (is_right_operand_a_minus){
             return {
                 EXPRESSION_OPERATOR_BINARY,
                 operator_symbol.at(OPERATOR_SUB),
                 expr.bracketed,
                 {
-                    turn_addition_to_subtraction(expr.child[0]), 
-                    turn_addition_to_subtraction(expr.child[1].child[0])
+                    turn_addition_to_subtraction(expr.children[0]), 
+                    turn_addition_to_subtraction(expr.children[1].children[0])
                 },
             };
         }
     }
 
     // apply recursively to all children
-    for (size_t i = 0; i < expr.child.size(); i++){
-        expr.child[i] = turn_addition_to_subtraction(expr.child[i]);
+    for (size_t i = 0; i < expr.children.size(); i++){
+        expr.children[i] = turn_addition_to_subtraction(expr.children[i]);
     }
     return expr;
 }

@@ -35,7 +35,7 @@ void Task::print_state() const{
     if (this->current.has_value()){
         cout << INDENT;
         if (this->print_rhs_only){
-            cout << "= " << this->current.value().child[0].to_string();
+            cout << "= " << this->current.value().children[0].to_string();
         }else{
             cout << this->current.value().to_string();
         }
@@ -86,13 +86,13 @@ void Task::init_current_with_target_lhs(){
         this->error_messages.push_back("target statement is not set");
         return;
     }
-    Expression lhs  = this->target.value().child[0];
+    Expression lhs  = this->target.value().children[0];
     this->current = Expression::create_equality(lhs,lhs);
 }
 
 void replace_expression_symbol(Expression &expr, string from_symbol, Expression to){
     // iterate over the child of expr
-    for (auto &child : expr.child){
+    for (auto &child : expr.children){
         if (child.symbol == from_symbol){
             child = to.copy();
         } else {
@@ -112,8 +112,8 @@ bool Task::apply_function_to_both_side_expr(Expression fexpr, string varname, st
     }
     if (custom_name == "") custom_name = "apply " + fexpr.to_string() + " to both side";
 
-    Expression lhs = this->current.value().child[0];
-    Expression rhs = this->current.value().child[1];
+    Expression lhs = this->current.value().children[0];
+    Expression rhs = this->current.value().children[1];
 
     Expression new_lhs = fexpr.copy();
     Expression new_rhs = fexpr.copy();

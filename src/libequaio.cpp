@@ -22,10 +22,10 @@ Expression Expression::copy() const{
         type, 
         symbol, 
         bracketed, 
-        vector<Expression>(child.size()),
+        vector<Expression>(children.size()),
     };
-    for (size_t i = 0; i < child.size(); i++) 
-        expr.child[i] = child[i].copy();
+    for (size_t i = 0; i < children.size(); i++) 
+        expr.children[i] = children[i].copy();
     return expr;
 }
 
@@ -33,19 +33,19 @@ Expression Expression::at(address addr) const{
     Expression expr = *this;
     if (addr.size() == 0) return expr;
     for (size_t i = 0; i < addr.size()-1; i++){
-        expr = expr.child[addr[i]];
+        expr = expr.children[addr[i]];
     }
-    return expr.child[addr.back()];
+    return expr.children[addr.back()];
 }
 
 vector<address> _get_all_address(Expression expr, address history){
     vector<address> result = {history};
-    if (expr.child.size() <= 0) return result;
+    if (expr.children.size() <= 0) return result;
 
-    for (size_t i = 0; i < expr.child.size(); i++){
+    for (size_t i = 0; i < expr.children.size(); i++){
         address newh(history);
         newh.push_back(i);
-        auto child_all_address = _get_all_address(expr.child[i], newh);
+        auto child_all_address = _get_all_address(expr.children[i], newh);
         result.insert(result.end(), child_all_address.begin(), child_all_address.end());
     }
     return result;
@@ -57,15 +57,15 @@ vector<address> Expression::get_all_address() const{
 
 string Expression::to_string() const {
     string str = "";
-    bool no_child = child.size() == 0;
+    bool no_child = children.size() == 0;
     if (bracketed && !no_child) str += "(";
     if (type == EXPRESSION_OPERATOR_UNARY){
         str += symbol;
-        str += child[0].to_string();
+        str += children[0].to_string();
     } else if (type == EXPRESSION_OPERATOR_BINARY){
-        str += child[0].to_string();
+        str += children[0].to_string();
         str += " " + symbol + " ";
-        str += child[1].to_string();
+        str += children[1].to_string();
     } else if (type == EXPRESSION_VALUE){
         str += symbol;
     }
@@ -86,18 +86,18 @@ bool Expression::can_pattern_match(Expression pattern, Context ctx) const{
     if (type != pattern.type) return false;
     if (symbol != pattern.symbol) return false;
 
-    if (child.size() != pattern.child.size()) return false;
-    for (size_t i = 0; i < child.size(); i++){
-        if (!child[i].can_pattern_match(pattern.child[i], ctx)) return false;
+    if (children.size() != pattern.children.size()) return false;
+    for (size_t i = 0; i < children.size(); i++){
+        if (!children[i].can_pattern_match(pattern.children[i], ctx)) return false;
     }
     return true;
 }
 
 vector<string> Expression::extract_variables() const{
-    if (this->child.size() == 0 && this->type == EXPRESSION_VALUE) return vector<string>{this->symbol};
+    if (this->children.size() == 0 && this->type == EXPRESSION_VALUE) return vector<string>{this->symbol};
     vector<string> variables;
-    for (size_t i = 0; i < this->child.size(); i++){
-        auto child_variables = this->child[i].extract_variables();
+    for (size_t i = 0; i < this->children.size(); i++){
+        auto child_variables = this->children[i].extract_variables();
         variables.insert(variables.end(), child_variables.begin(), child_variables.end());
     }
     return variables;
@@ -113,11 +113,11 @@ vector<address> _get_operator_chains_from(Expression root_expr, address addr, bo
     }
 
     vector<address> operator_chains = {addr};
-    for (size_t i = 0; i < expr.child.size(); i++){
+    for (size_t i = 0; i < expr.children.size(); i++){
         address child_addr(addr);
         child_addr.push_back(i);
 
-        string child_symbol = expr.child[i].symbol;
+        string child_symbol = expr.children[i].symbol;
         if (child_symbol != this_symbol) continue;
         auto child_operator_chains = _get_operator_chains_from(root_expr, child_addr, true);
         operator_chains.insert(operator_chains.end(), child_operator_chains.begin(), child_operator_chains.end());
@@ -137,8 +137,8 @@ optional<map<string, Expression>> Expression::try_match_pattern(Expression patte
     }
 
     map<string, Expression> variable_map = {};
-    for (size_t i = 0; i < pattern.child.size(); i++){
-        auto child_variable_map = child[i].try_match_pattern(pattern.child[i]);
+    for (size_t i = 0; i < pattern.children.size(); i++){
+        auto child_variable_map = children[i].try_match_pattern(pattern.children[i]);
         if (!child_variable_map.has_value()) return std::nullopt;
         // check if there is a conflict with the variable_map
         for (const auto & [key, value] : child_variable_map.value()){
@@ -164,10 +164,10 @@ Expression Expression::apply_variable_map(map<string, Expression> variable_map) 
         type, 
         symbol, 
         bracketed, 
-        vector<Expression>(child.size()),
+        vector<Expression>(children.size()),
     };
-    for (size_t i = 0; i < child.size(); i++) 
-        expr.child[i] = child[i].apply_variable_map(variable_map);
+    for (size_t i = 0; i < children.size(); i++) 
+        expr.children[i] = children[i].apply_variable_map(variable_map);
     return expr;
 }
 
@@ -176,8 +176,8 @@ vector<Expression> Expression::apply_rule_equal(Expression rule, Context ctx) co
     if (rule.symbol != "=") return {};
 
     // turn lhs to rhs
-    auto lhs = rule.child[0];
-    auto rhs = rule.child[1];
+    auto lhs = rule.children[0];
+    auto rhs = rule.children[1];
 
     // auto variables = extract_variables(lhs);
     vector<Expression> result = {};
@@ -191,11 +191,11 @@ vector<Expression> Expression::apply_rule_equal(Expression rule, Context ctx) co
     }
 
     // do it for each child
-    for (size_t i = 0; i < this->child.size(); i++){
-        auto child_result = this->child[i].apply_rule_equal(rule, ctx);
+    for (size_t i = 0; i < this->children.size(); i++){
+        auto child_result = this->children[i].apply_rule_equal(rule, ctx);
         for (auto &child_expr : child_result){
             auto expr = this->copy();
-            expr.child[i] = child_expr;
+            expr.children[i] = child_expr;
             result.push_back(expr);
         }
     }
@@ -205,9 +205,9 @@ vector<Expression> Expression::apply_rule_equal(Expression rule, Context ctx) co
 bool operator==(const Expression& lhs, const Expression& rhs){
     if (lhs.type != rhs.type) return false;
     if (lhs.symbol != rhs.symbol) return false;
-    if (lhs.child.size() != rhs.child.size()) return false;
-    for (size_t i = 0; i < lhs.child.size(); i++){
-        if (!(lhs.child[i] == rhs.child[i])) return false;
+    if (lhs.children.size() != rhs.children.size()) return false;
+    for (size_t i = 0; i < lhs.children.size(); i++){
+        if (!(lhs.children[i] == rhs.children[i])) return false;
     }
     return true;
 }
@@ -226,8 +226,8 @@ std::ostream& operator<<(std::ostream& os, const Expression& exp){
     }
     if (exp.bracketed) os << " (bracketed)";
     os << endl;
-    for (size_t i = 0; i < exp.child.size(); i++){
-        os << exp.child[i];
+    for (size_t i = 0; i < exp.children.size(); i++){
+        os << exp.children[i];
     }
     return os;
 }

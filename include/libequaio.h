@@ -53,7 +53,7 @@ struct Expression {
     ExpType type;
     string  symbol;
     bool    bracketed;
-    vector<Expression> child; // can only have 1 or 2 member
+    vector<Expression> children; // can only have 1 or 2 member
 
     Expression copy() const;
     string to_string() const;
