@@ -50,6 +50,7 @@ struct Expression {
     // only based on operators
     bool can_pattern_match(Expression pattern, Context ctx) const;
     Expression at(address addr) const;
+    Expression* ptr_at(address addr);
     vector<address> get_all_address() const;
 
     vector<string> extract_variables() const;

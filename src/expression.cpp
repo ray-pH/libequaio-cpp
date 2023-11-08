@@ -17,6 +17,16 @@ Expression Expression::copy() const{
     return expr;
 }
 
+Expression* Expression::ptr_at(address addr) {
+    Expression *expr = this;
+    if (addr.size() == 0) return expr;
+    for (size_t i = 0; i < addr.size(); i++){
+        if (expr->children.size() <= addr[i]) return nullptr;
+        expr = &expr->children[addr[i]];
+    }
+    return expr;
+}
+
 Expression Expression::at(address addr) const{
     const Expression *expr = this;
     if (addr.size() == 0) return *expr;
