@@ -26,14 +26,23 @@ Expression Expression::at(address addr) const{
     return expr->children[addr.back()];
 }
 
-vector<address> _get_all_address(Expression expr, address history){
-    vector<address> result = {history};
+address Expression::parent_address_of(const address addr) {
+    if (addr.size() == 0) return {};
+    return {addr.begin(), addr.end()-1};
+}
+address Expression::child_address_of(const address addr, int child_index) {
+    address child_addr(addr);
+    child_addr.push_back(child_index);
+    return child_addr;
+}
+
+vector<address> _get_all_address(Expression expr, address addr){
+    vector<address> result = {addr};
     if (expr.children.size() <= 0) return result;
 
     for (size_t i = 0; i < expr.children.size(); i++){
-        address newh(history);
-        newh.push_back(i);
-        auto child_all_address = _get_all_address(expr.children[i], newh);
+        auto child_addr = Expression::child_address_of(addr, i);
+        auto child_all_address = _get_all_address(expr.children[i], child_addr);
         result.insert(result.end(), child_all_address.begin(), child_all_address.end());
     }
     return result;
@@ -95,15 +104,14 @@ vector<address> _get_operator_chains_from(Expression root_expr, address addr, bo
     Expression expr      = root_expr.at(addr);
     string this_symbol   = expr.symbol;
     if (addr.size() > 0 && !from_top){
-        address parent_addr = {addr.begin(), addr.end()-1};
+        address parent_addr = Expression::parent_address_of(addr);
         string parent_symbol = root_expr.at(parent_addr).symbol;
         if (this_symbol == parent_symbol) return _get_operator_chains_from(root_expr, parent_addr, false);
     }
 
     vector<address> operator_chains = {addr};
     for (size_t i = 0; i < expr.children.size(); i++){
-        address child_addr(addr);
-        child_addr.push_back(i);
+        address child_addr = Expression::child_address_of(addr, i);
 
         string child_symbol = expr.children[i].symbol;
         if (child_symbol != this_symbol) continue;

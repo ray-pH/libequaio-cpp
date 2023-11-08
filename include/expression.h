@@ -67,6 +67,8 @@ struct Expression {
     friend bool operator==(const Expression& lhs, const Expression& rhs);
     friend bool operator!=(const Expression& lhs, const Expression& rhs);
     
+    static address parent_address_of(address addr);
+    static address child_address_of(address addr, int child_index);
     static Expression create_equality(Expression lhs, Expression rhs);
     static Expression create_symbol(string symbol);
 };
