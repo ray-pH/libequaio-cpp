@@ -165,6 +165,18 @@ void Expression::strip_parentheses_for_associative_op(string op){
     }
 }
 
+void Expression::swap_two_element(address addr1, address addr2){
+    Expression expr1 = this->at(addr1).copy();
+    Expression expr2 = this->at(addr2).copy();
+    auto addr1_parent = Expression::parent_address_of(addr1);
+    auto addr2_parent = Expression::parent_address_of(addr2);
+
+    Expression* parent1 = this->ptr_at(addr1_parent);
+    parent1->children[addr1.back()] = expr2;
+    Expression* parent2 = this->ptr_at(addr2_parent);
+    parent2->children[addr2.back()] = expr1;
+}
+
 
 // return map that maps variables from pattern to expressions in this expression
 // NOTE : this->can_pattern_match(pattern) must be true
