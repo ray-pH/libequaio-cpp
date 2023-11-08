@@ -21,6 +21,7 @@ Expression Expression::at(address addr) const{
     const Expression *expr = this;
     if (addr.size() == 0) return *expr;
     for (size_t i = 0; i < addr.size()-1; i++){
+        if (expr->children.size() <= addr[i]) return {};
         expr = &expr->children[addr[i]];
     }
     return expr->children[addr.back()];
