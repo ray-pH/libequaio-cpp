@@ -54,6 +54,7 @@ struct Expression {
 
     vector<string> extract_variables() const;
     vector<address> get_operator_chains_from(address addr) const;
+    bool is_in_same_operator_chain(address addr1, address addr2) const;
     void strip_parentheses_for_associative_op(string op);
     // vector<vector<address>> get_all_operator_chains() const;
 

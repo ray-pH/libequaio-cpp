@@ -125,6 +125,14 @@ vector<address> Expression::get_operator_chains_from(address addr) const{
     return _get_operator_chains_from(*this, addr, false);
 }
 
+bool Expression::is_in_same_operator_chain(address addr1, address addr2) const{
+    // check if both parent are in the same operator chain
+    address addr1_parent = Expression::parent_address_of(addr1);
+    address addr2_parent = Expression::parent_address_of(addr2);
+    auto operator_chains = this->get_operator_chains_from(addr1_parent);
+    return vector_contain(addr2_parent, operator_chains);
+}
+
 void Expression::strip_parentheses_for_associative_op(string op){
     switch (this->type){
         case EXPRESSION_VALUE:{ return; }
