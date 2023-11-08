@@ -28,13 +28,13 @@ struct Task {
     bool set_current_eq(string exprstr);
     void init_current_with_target_lhs();
     void set_current_expr(Expression expr, string msg);
-
     // userland
 
     bool apply_function_to_both_side_expr(Expression fexpr, string varname, string custom_name = "");
     bool apply_rule_expr(Expression expr, string custom_name = "");
     bool apply_function_to_both_side(string fstr, string varname, string custom_name = "");
     bool apply_rule(string rulename, string custom_name = "");
+    bool try_swap_two_element(address addr1, address addr2, string custom_name = "");
 
     // arithmetics
     bool apply_arithmetic_to_both_side(Arithmetic::Operator op, string value, string custom_name = "");

@@ -169,6 +169,26 @@ bool Task::apply_rule(string rulename, string custom_name){
     return this->apply_rule_expr(ruleexpr, custom_name);
 }
 
+bool Task::try_swap_two_element(address addr1, address addr2, string custom_name){
+    if (!this->current.has_value()){
+        this->error_messages.push_back("current statement is not set");
+        return false;
+    }
+    Expression expr = this->current.value().copy();
+    // make sure addr1 and addr2 are in the same operator chain
+    // TODO: maybe put info about associativity in context or somewhere else
+    //       for now, just assume all operators can be associative
+    if (!expr.is_in_same_operator_chain(addr1, addr2)){
+        this->error_messages.push_back("trying to swap, but the two element are not in the same operator chain");
+        return false;
+    }
+
+    if (custom_name == "") custom_name = "rearrange";
+    expr.swap_two_element(addr1, addr2);
+    this->set_current_expr(expr, custom_name);
+    return true;
+}
+
 // =============== Arithmetics
 bool Task::apply_arithmetic_to_both_side(Arithmetic::Operator op, string value, string custom_name){
     string varname = "X";
