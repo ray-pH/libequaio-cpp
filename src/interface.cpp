@@ -222,4 +222,22 @@ bool Task::apply_arithmetic_turn_subtraction_to_addition(string custom_name){
     this->set_current_expr(expr, custom_name);
     return true;
 }
+bool Task::apply_arithmetic_turn_addition_to_subtraction(string custom_name){
+    if (custom_name == "") custom_name = "turn addition to subtraction";
+    auto expr = Arithmetic::turn_addition_to_subtraction(this->current.value());
+    this->set_current_expr(expr, custom_name);
+    return true;
+}
+bool Task::apply_arithmetic_turn_division_to_multiplication(string custom_name){
+    if (custom_name == "") custom_name = "turn division to multiplication";
+    auto expr = Arithmetic::turn_division_to_multiplication(this->current.value());
+    this->set_current_expr(expr, custom_name);
+    return true;
+}
+bool Task::apply_arithmetic_turn_multiplication_to_division(string custom_name){
+    if (custom_name == "") custom_name = "turn multiplication to division";
+    auto expr = Arithmetic::turn_multiplication_to_division(this->current.value());
+    this->set_current_expr(expr, custom_name);
+    return true;
+}
 

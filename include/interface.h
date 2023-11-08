@@ -41,6 +41,8 @@ struct Task {
     bool apply_arithmetic_calculation(string left, string right, Arithmetic::Operator op, string custom_name = "");
     bool apply_arithmetic_turn_subtraction_to_addition(string custom_name = "");
     bool apply_arithmetic_turn_addition_to_subtraction(string custom_name = "");
+    bool apply_arithmetic_turn_division_to_multiplication(string custom_name = "");
+    bool apply_arithmetic_turn_multiplication_to_division(string custom_name = "");
 };
 
 struct Interface {

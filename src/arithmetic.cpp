@@ -133,6 +133,24 @@ Expression Arithmetic::turn_addition_to_subtraction(Expression expr){
     );
 }
 
+// turn `a / b` into `a * (1/ b)`
+Expression Arithmetic::turn_division_to_multiplication(Expression expr){
+    return __turn_binary_to_binaryunary( expr, 
+        operator_symbol.at(OPERATOR_DIV),
+        operator_symbol.at(OPERATOR_MUL),
+        operator_symbol.at(OPERATOR_RECIP)
+    );
+}
+
+// turn `a * (1/ b)` into `a / b`
+Expression Arithmetic::turn_multiplication_to_division(Expression expr){
+    return __turn_binaryunary_to_binary( expr, 
+        operator_symbol.at(OPERATOR_MUL),
+        operator_symbol.at(OPERATOR_RECIP),
+        operator_symbol.at(OPERATOR_DIV)
+    );
+}
+
 Expression Arithmetic::remove_assoc_parentheses(Expression expr){
     auto newexpr = expr.copy();
     newexpr.strip_parentheses_for_associative_op(operator_symbol.at(OPERATOR_ADD));
