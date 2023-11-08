@@ -56,47 +56,53 @@ optional<Expression> Arithmetic::create_calculation(string left, string right, O
     return std::nullopt;
 }
 
-// turn `a - b` into `a + (_ b)`
-Expression Arithmetic::turn_subtraction_to_addition(Expression expr){
-    bool is_subtraction = expr.type == EXPRESSION_OPERATOR_BINARY 
-                        && expr.symbol == operator_symbol.at(OPERATOR_SUB);
-    if (is_subtraction){
+// turn `a * b` into `a # (@b)`
+// * is the `from_binary`
+// # is the `to_binary`
+// @ is the `to_unary`
+Expression __turn_binary_to_binaryunary(Expression expr, string from_binary, string to_binary, string to_unary){
+    bool is_from_binary = expr.type == EXPRESSION_OPERATOR_BINARY 
+                        && expr.symbol == from_binary;
+    if (is_from_binary){
         Expression newright = {
             EXPRESSION_OPERATOR_UNARY,
-            operator_symbol.at(OPERATOR_MINUS),
+            to_unary,
             true,
-            {turn_subtraction_to_addition(expr.children[1])}
+            { __turn_binary_to_binaryunary(expr.children[1], from_binary, to_binary, to_unary) }
         };
         return {
             EXPRESSION_OPERATOR_BINARY,
-            operator_symbol.at(OPERATOR_ADD),
+            to_binary,
             expr.bracketed,
-            {turn_subtraction_to_addition(expr.children[0]), newright}
+            {__turn_binary_to_binaryunary(expr.children[0], from_binary, to_binary, to_unary), newright}
         };
     }
 
     // apply recursively to all children
     for (size_t i = 0; i < expr.children.size(); i++){
-        expr.children[i] = turn_subtraction_to_addition(expr.children[i]);
+        expr.children[i] = __turn_binary_to_binaryunary(expr.children[i], from_binary, to_binary, to_unary);
     }
     return expr;
 }
 
-// turn `a + (_ b)` into `a - b`
-Expression Arithmetic::turn_addition_to_subtraction(Expression expr){
-    bool is_addition = expr.type == EXPRESSION_OPERATOR_BINARY 
-                        && expr.symbol == operator_symbol.at(OPERATOR_ADD);
-    if (is_addition){
-        bool is_right_operand_a_minus = expr.children[1].type == EXPRESSION_OPERATOR_UNARY
-                                        && expr.children[1].symbol == operator_symbol.at(OPERATOR_MINUS);
-        if (is_right_operand_a_minus){
+// turn `a # (@b)` into `a * b`
+// # is the `from_binary`
+// @ is the `from_unary`
+// * is the `to_binary`
+Expression __turn_binaryunary_to_binary(Expression expr, string from_binary, string from_unary, string to_binary){
+    bool is_from_binaryunary = expr.type == EXPRESSION_OPERATOR_BINARY 
+                        && expr.symbol == from_binary;
+    if (is_from_binaryunary){
+        bool is_from_unary = expr.children[1].type == EXPRESSION_OPERATOR_UNARY
+                            && expr.children[1].symbol == from_unary;
+        if (is_from_unary){
             return {
                 EXPRESSION_OPERATOR_BINARY,
-                operator_symbol.at(OPERATOR_SUB),
+                to_binary,
                 expr.bracketed,
                 {
-                    turn_addition_to_subtraction(expr.children[0]), 
-                    turn_addition_to_subtraction(expr.children[1].children[0])
+                    __turn_binaryunary_to_binary(expr.children[0], from_binary, from_unary, to_binary),
+                    __turn_binaryunary_to_binary(expr.children[1].children[0], from_binary, from_unary, to_binary)
                 },
             };
         }
@@ -104,9 +110,27 @@ Expression Arithmetic::turn_addition_to_subtraction(Expression expr){
 
     // apply recursively to all children
     for (size_t i = 0; i < expr.children.size(); i++){
-        expr.children[i] = turn_addition_to_subtraction(expr.children[i]);
+        expr.children[i] = __turn_binaryunary_to_binary(expr.children[i], from_binary, from_unary, to_binary);
     }
     return expr;
+}
+
+// turn `a - b` into `a + (_ b)`
+Expression Arithmetic::turn_subtraction_to_addition(Expression expr){
+    return __turn_binary_to_binaryunary( expr, 
+        operator_symbol.at(OPERATOR_SUB),
+        operator_symbol.at(OPERATOR_ADD),
+        operator_symbol.at(OPERATOR_MINUS)
+    );
+}
+
+// turn `a + (_ b)` into `a - b`
+Expression Arithmetic::turn_addition_to_subtraction(Expression expr){
+    return __turn_binaryunary_to_binary( expr, 
+        operator_symbol.at(OPERATOR_ADD),
+        operator_symbol.at(OPERATOR_MINUS),
+        operator_symbol.at(OPERATOR_SUB)
+    );
 }
 
 Expression Arithmetic::remove_assoc_parentheses(Expression expr){
