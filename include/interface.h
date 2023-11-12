@@ -43,6 +43,7 @@ struct Task {
     bool apply_arithmetic_turn_addition_to_subtraction(string custom_name = "");
     bool apply_arithmetic_turn_division_to_multiplication(string custom_name = "");
     bool apply_arithmetic_turn_multiplication_to_division(string custom_name = "");
+    bool apply_arithmetic_remove_assoc_parentheses(string custom_name = "");
 };
 
 struct Interface {

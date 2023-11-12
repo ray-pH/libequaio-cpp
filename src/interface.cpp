@@ -240,4 +240,9 @@ bool Task::apply_arithmetic_turn_multiplication_to_division(string custom_name){
     this->set_current_expr(expr, custom_name);
     return true;
 }
-
+bool Task::apply_arithmetic_remove_assoc_parentheses(string custom_name){
+    if (custom_name == "") custom_name = "remove associative parenthesis";
+    auto expr = Arithmetic::remove_assoc_parentheses(this->current.value());
+    this->set_current_expr(expr, custom_name);
+    return true;
+}
